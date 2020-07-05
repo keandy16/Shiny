@@ -1,0 +1,517 @@
+---
+title: "Shiny App"
+output: html_notebook
+---
+
+The purpose of this R Notebook is to create a Shiny app with my data.
+
+First, let's clear the environment and load the shiny package.
+```{r}
+rm(list = ls())
+library(shiny)
+library(dplyr)
+library(readr)
+library(ggplot2)
+```
+
+Now let's load the data frame we need. This will tell us the total number of species per forest and how many of each species were detected
+```{r}
+dataFinal <- read_csv("~/Documents/Kate_ThesisCode/dataFinal.csv")
+```
+
+Subset data to remove "Nothing Here" choice
+```{r}
+dump<-which(dataFinal$choice == "NOTHINGHERE")
+newData<-dataFinal[-dump,]
+```
+
+
+
+Shiny app of species count by forest type
+```{r}
+ui <- fluidPage(
+
+  # App title ----
+  titlePanel("Species Count by Forest Type"),
+
+  # Sidebar layout with input and output definitions ----
+  sidebarLayout(
+
+    # Sidebar panel for inputs ----
+    sidebarPanel(
+
+      # Input: Slider for the number of bins ----
+      selectInput("forest", h3("Choose your Forest Type"),
+                  choices = c("Deciduous", "Pine"), selected = "Deciduous"),
+        
+       conditionalPanel( condition = "NOTHINGHERE",
+                    checkboxInput("remove", "Remove Nothing Here"))
+
+    ),
+
+    # Main panel for displaying outputs ----
+    mainPanel(
+
+      # Output: Histogram ----
+      plotOutput(outputId = "foresthist")
+
+    )
+  )
+)
+
+server <- function(input, output) {
+
+  # Histogram of the number of species per forest type ----
+
+  output$foresthist <- renderPlot({
+
+
+
+if(input$remove){
+  newdata<-switch(input$forest,
+                "Deciduous" = newData %>% filter(ForestType=="Deciduous"),
+                      "Pine" = newData %>% filter(ForestType=="Pine"))
+  
+    ggplot(newdata, aes(choice)) + 
+     geom_histogram(stat = "count", position = "dodge") + 
+     theme_bw() + 
+    xlab("Species per Forest Type") +
+     ylab("Number of Detections") +
+     theme(axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5))
+}    
+    else {
+data<- switch(input$forest, 
+                      "Deciduous" = dataFinal %>% filter(ForestType=="Deciduous"),
+                      "Pine" = dataFinal %>% filter(ForestType=="Pine"))
+          
+      ggplot(data, aes(choice)) + 
+     geom_histogram(stat = "count", position = "dodge") + 
+     theme_bw() + 
+    xlab("Species per Forest Type") +
+     ylab("Number of Detections") +
+     theme(axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5))
+    }
+
+})
+
+    }
+
+
+shinyApp(ui = ui, server = server)
+```
+
+Shiny app of species count by forest
+```{r}
+ui <- fluidPage(
+
+  # App title ----
+  titlePanel("Species Count by Forest Type"),
+
+  # Sidebar layout with input and output definitions ----
+  sidebarLayout(
+
+    # Sidebar panel for inputs ----
+    sidebarPanel(
+
+      # Input: Slider for the number of bins ----
+      selectInput("forest", h3("Choose your Forest"),
+                  choices = c("SH", "DON", "BC", "WHIP", "WF", "DEG"), selected = "SH"),
+        
+     conditionalPanel( condition = "NOTHINGHERE",
+                    checkboxInput("remove", "Remove Nothing Here"))
+
+    ),
+
+    # Main panel for displaying outputs ----
+    mainPanel(
+
+      # Output: Histogram ----
+      plotOutput(outputId = "foresthist")
+
+    )
+  )
+)
+
+server <- function(input, output) {
+
+  # Histogram of the number of species per forest ----
+
+  output$foresthist <- renderPlot({
+
+   
+   if(input$remove){
+  newdata<-switch(input$forest, 
+                      "SH" = newData %>% filter(ForestName=="SH"),
+                      "BC" = newData %>% filter(ForestName=="BC"),
+                  "DON" = newData %>% filter(ForestName == "DON"),
+                  "WHIP" = newData %>% filter(ForestName == "WHIP"),
+                  "WF" = newData %>% filter(ForestName == "WF"),
+                  "DEG" = newData %>% filter(ForestName == "DEG"))
+  
+    ggplot(newdata, aes(choice)) + 
+     geom_histogram(stat = "count", position = "dodge") + 
+     theme_bw() + 
+    xlab("Species per Forest") +
+     ylab("Number of Detections") +
+     theme(axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5))
+}    
+    else {
+data<- switch(input$forest, 
+                      "SH" = dataFinal %>% filter(ForestName=="SH"),
+                      "BC" = dataFinal %>% filter(ForestName=="BC"),
+                  "DON" = dataFinal %>% filter(ForestName == "DON"),
+                  "WHIP" = dataFinal %>% filter(ForestName == "WHIP"),
+                  "WF" = dataFinal %>% filter(ForestName == "WF"),
+                  "DEG" = dataFinal %>% filter(ForestName == "DEG"))
+          
+      ggplot(data, aes(choice)) + 
+     geom_histogram(stat = "count", position = "dodge") + 
+     theme_bw() + 
+    xlab("Species per Forest") +
+     ylab("Number of Detections") +
+     theme(axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5))
+    }
+      })
+
+    }
+
+
+
+shinyApp(ui = ui, server = server)
+```
+
+Shiny app showing which forest types detected which mammals
+```{r}
+ui <- fluidPage(
+
+  # App title ----
+  titlePanel("Mammal Distribution by Forset Type"),
+
+  # Sidebar layout with input and output definitions ----
+  sidebarLayout(
+
+    # Sidebar panel for inputs ----
+    sidebarPanel(
+
+      # Input: Slider for the number of bins ----
+      selectInput("species", h3("Choose your Species"),
+                  choices = c("White-tailed Deer", "Chipmunk", "Coyote", "Fisher", "Raccoon", "Red Squirrel", "Other Small Mammal", "Gray Squirrel", "Black Bear", "Red Fox", "Porcupine", "Bobcat", "Opossum", "Weasel", "Striped Skunk", "Flying Squirrel", "Snowshoe Hare", "River Otter", "Mink"), selected = "White-tailed Deer"),
+        
+),
+    # Main panel for displaying outputs ----
+    mainPanel(
+
+      # Output: Histogram ----
+      plotOutput(outputId = "foresthist")
+
+    )
+  )
+)
+
+server <- function(input, output) {
+
+  # Histogram of which forest types each species is found at ----
+
+  output$foresthist <- renderPlot({
+
+  data<-switch(input$species, 
+                      "White-tailed Deer" = newData %>% filter(choice=="DEERWHITETAILED"),
+                      "Chipmunk" = newData %>% filter(choice=="CHIPMUNK"),
+                  "Coyote" = newData %>% filter(choice == "COYOTE"),
+                  "Fisher" = newData %>% filter(choice == "FISHER"),
+                  "Raccoon" = newData %>% filter(choice == "RACCOON"),
+                  "Red Squirrel" = newData %>% filter(choice == "SQUIRRELRED"),
+               "Gray Squirrel" = newData %>% filter(choice == "SQUIRRELGRAY"),
+               "Black Bear" = newData %>% filter(choice == "BLACKBEAR"),
+               "Red Fox" = newData %>% filter(choice == "FOXRED"),
+               "Porcupine" = newData %>% filter(choice == "PORCUPINE"),
+               "Bobcat" = newData %>% filter(choice == "BOBCAT"),
+               "Weasel" = newData %>% filter(choice == "WEASEL"),
+               "Striped Skunk" = newData %>% filter(choice == "SKUNKSTRIPED"),
+               "Flying Squirrel" = newData %>% filter(choice == "SQUIRRELFLYING"),
+               "Snowshoe Hare" = newData %>% filter(choice == "SNOWSHOEHARE"),
+               "River Otter" = newData %>% filter(choice == "RIVEROTTER"),
+               "Mink" = newData %>% filter(choice == "MINK"),
+               "Other Small Mammal" = newData %>% filter(choice == "OTHERSMALLMAMMAL"),
+               "Opossum" = newData %>% filter(choice == "OPOSSUM"),)
+  
+    ggplot(data, aes(ForestType)) + 
+     geom_histogram(stat = "count", position = "dodge") + 
+     theme_bw() + 
+    xlab("Forest Type") +
+     ylab("Number of Detections") +
+     theme(axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5))
+    
+ 
+      })
+
+    }
+
+
+
+shinyApp(ui = ui, server = server)
+```
+
+
+Load the data that was modified to add trophic level column
+```{r}
+mammals<- read_csv("mammals.csv")
+mammals<- mammals[,2:16]
+```
+
+Shiny app showing distribution of trophic hierarchy by forest 
+```{r}
+
+ui <- fluidPage(
+
+  # App title ----
+  titlePanel("Mammal Distribution by Forset Type"),
+
+  # Sidebar layout with input and output definitions ----
+  sidebarLayout(
+
+    # Sidebar panel for inputs ----
+    sidebarPanel(
+
+      # Input: Slider for the number of bins ----
+      selectInput("forest", h3("Choose your Forest"),
+                  choices = c("South Hammond", "Donnerville", "Beaver Creek", "Whiskey Flats", "Whippoorwill Corners", "Degrasse")),
+        
+),
+    # Main panel for displaying outputs ----
+    mainPanel(
+
+      # Output: Histogram ----
+      plotOutput(outputId = "foresthist")
+
+    )
+  )
+)
+
+server <- function(input, output) {
+
+  # Histogram of the number of different trophic levels per forest ----
+
+  output$foresthist <- renderPlot({
+
+  data<-switch(input$forest, 
+                      "Whiskey Flats" = mammals %>% filter(ForestName=="WF"),
+                      "South Hammond" = mammals %>% filter(ForestName=="SH"),
+                  "Donnerville" = mammals %>% filter(ForestName == "DON"),
+                  "Beaver Creek" = mammals %>% filter(ForestName == "BC"),
+                  "Degrasse" = mammals %>% filter(ForestName == "DEG"),
+                  "Whippoorwill Corners" = mammals %>% filter(ForestName == "WHIP"),)
+  
+    ggplot(data, aes(Trophic)) + 
+     geom_histogram(stat = "count", position = "dodge") + 
+     theme_bw() + 
+    xlab("Trophic Level") +
+     ylab("Number of Detections") +
+     theme(axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5))
+    
+ 
+      })
+
+    }
+
+
+
+shinyApp(ui = ui, server = server)
+```
+
+Make a shiny app that breaks down the composition of each forest
+```{r}
+#First, load the data
+Covariates <- read_csv("Covariates.csv")
+
+Cov_sum<-Covariates %>% group_by(Forest) %>% summarise(
+  Water = mean(P_Water50), Mixed = mean(P_Mixed50), Evergreen = mean(P_Evergreen50), Deciduous = mean(P_Deciduous50), Development = mean(P_Development50), Agriculture = mean(P_Agriculture50), Barren = mean(P_Barren50), Shrub = mean(P_Shrub50), Wetland = mean(P_Wetland50), Herbaceous = mean(P_Herb50)
+)
+
+require(reshape2)
+dat_molten <- melt(Cov_sum,"Forest")
+require(ggplot2)
+
+
+
+
+ui <- fluidPage(
+
+  # App title ----
+  titlePanel("Forest Composition"),
+
+  # Sidebar layout with input and output definitions ----
+  sidebarLayout(
+
+    # Sidebar panel for inputs ----
+    sidebarPanel(
+
+      # Input: Slider for the number of bins ----
+      selectInput("forest", h3("Choose your Forest"),
+                  choices = c("South Hammond", "Beaver Creek", "Donnerville", "Whiskey Flats", "Whippoorwill Corners", "Degrasse"), selected = "South Hammond"),
+        
+),
+    # Main panel for displaying outputs ----
+    mainPanel(
+
+      # Output: Histogram ----
+      plotOutput(outputId = "foresthist")
+
+    )
+  )
+)
+
+server <- function(input, output) {
+
+  # Pie chart of forest composition per forest ----
+
+  output$foresthist <- renderPlot({
+
+  data<-switch(input$forest, 
+                      "South Hammond" = dat_molten %>% filter(Forest=="SH"),
+                      "Beaver Creek" = dat_molten %>% filter(Forest=="BC"),
+                  "Donnerville" = dat_molten %>% filter(Forest=="DON"),
+                  "Degrasse" = dat_molten %>% filter(Forest=="DEG"),
+                  "Whippoorwill Corners" = dat_molten %>% filter(Forest=="WHIP"),
+                  "Whiskey Flats" = dat_molten %>% filter(Forest=="WF"),)
+  
+   ggplot(data, aes(x="", y=value, fill= variable)) + 
+         geom_bar(stat="identity") + 
+  coord_polar("y", start = 0) + 
+     geom_text(aes(label = paste0(round(value), "%")), position = position_stack(vjust = 0.5))+
+      theme(axis.line = element_blank(),
+          plot.title = element_text(hjust=0.5)) + 
+    labs(fill = "variable",
+         x = NULL,
+         y = NULL,
+         title = "Forest Composition")
+    
+ 
+      })
+
+    }
+
+
+
+shinyApp(ui = ui, server = server)
+```
+
+Make a Shiny app that shows the mammal diversity by season per forest (not working). I think the reason why this is not working is because I have the data frame flipped from normal format (column names are usually row names).
+```{r}
+#Load the data
+Diversity_total <- read_csv("~/Documents/Kate_ThesisCode/Diversity_total.csv")
+
+#Modify the data to match that from my diversity data in thesis code
+Diversity_total$BC<-replace(Diversity_total$BC, is.na(Diversity_total$BC), 0)
+Diversity_total$Season<-factor(Diversity_total$Season,c(1,2,3,4), labels = c("Winter", "Spring", "Summer", "Fall"))
+
+ui <- fluidPage(
+
+  # App title ----
+  titlePanel("Forest Composition"),
+
+  # Sidebar layout with input and output definitions ----
+  sidebarLayout(
+
+    # Sidebar panel for inputs ----
+    sidebarPanel(
+
+      # Input: Slider for the number of bins ----
+      selectInput("forest", h3("Choose your Forest"),
+                  choices = c("South Hammond", "Beaver Creek", "Donnerville", "Whiskey Flats", "Whippoorwill Corners", "Degrasse"), selected = "South Hammond"),
+        
+),
+    # Main panel for displaying outputs ----
+    mainPanel(
+
+      # Output: Histogram ----
+      plotOutput(outputId = "foresthist")
+
+    )
+  )
+)
+
+server <- function(input, output) {
+
+  # Bar chart of mammal diversity per season per forest ----
+
+  output$foresthist <- renderPlot({
+
+  data<-switch(input$forest, 
+                      "South Hammond" = Diversity_total %>% select(Diversity_Indices,Season,SH),
+                      "Beaver Creek" = Diversity_total %>% select(Diversity_Indices,Season,BC),
+                  "Donnerville" = Diversity_total %>% select(Diversity_Indices,Season,DON),
+                  "Degrasse" = Diversity_total %>% select(Diversity_Indices,Season,DEG),
+                  "Whippoorwill Corners" = Diversity_total %>% select(Diversity_Indices,Season,WHIP),
+                  "Whiskey Flats" = Diversity_total %>% select(Diversity_Indices,Season,WF),)
+  
+ ggplot(data, aes(x= "", y = data, fill = Diversity_Indices)) + 
+     geom_bar(stat = "identity",position= position_dodge(), width = 0.7) +
+     labs(title = "Forest", x= "Season", y= "Diversity Index") + theme (plot.title =element_text(hjust = 0.5))
+ 
+      })
+
+    }
+
+
+
+shinyApp(ui = ui, server = server)
+
+#THIS IS NOT WORKING!!!!
+```
+
+
+Make a Shiny app that shows a map of detections by species (Don't know which shape file to pull in!)
+```{r}
+ui <- fluidPage(
+
+  # App title ----
+  titlePanel("Mammal Distribution by Forset Type"),
+
+  # Sidebar layout with input and output definitions ----
+  sidebarLayout(
+
+    # Sidebar panel for inputs ----
+    sidebarPanel(
+
+      # Input: Slider for the number of bins ----
+      selectInput("species", h3("Choose your Species"),
+                  choices = c("White-tailed Deer", "Chipmunk", "Coyote", "Fisher", "Raccoon", "Red Squirrel", "Other Small Mammal", "Gray Squirrel", "Black Bear", "Red Fox", "Porcupine", "Bobcat", "Opossum", "Weasel", "Striped Skunk", "Flying Squirrel", "Snowshoe Hare", "River Otter", "Mink"), selected = "White-tailed Deer"),
+        
+),
+    # Main panel for displaying outputs ----
+    mainPanel(
+
+      # Output: Histogram ----
+      plotOutput(outputId = "foresthist")
+
+    )
+  )
+)
+
+server <- function(input, output) {
+
+  # Map showing detection density by camera ----
+
+}
+
+
+
+shinyApp(ui = ui, server = server)
+```
+
+Make a Shiny app that shows activity patterns by species
+```{r}
+# First, let's finally figure out this activity chart! Need to load the TEAM library 1.7.R to get the functions we will use to make the activity chart
+source("~/Dropbox/Zooniverse_work/Camera_Trapping_Ch5_Work/TEAM library 1.7.R")
+
+#Now, following the Chapter 5 code, hopefully we can get this work. I think we need the data that came from the species accumulation curve because that has time data associated with the detections. Let's load that data too. 
+specActivity<-read_csv("SpeciesAcc.csv")
+
+
+SpeciesAcc$Photo.Time<-hms(SpeciesAcc$Photo.Time) #Fills in some NAs
+
+activity_24h<-events.hours(SpeciesAcc) #Error here. Not working
+
+```
+
