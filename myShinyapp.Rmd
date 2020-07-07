@@ -509,7 +509,7 @@ source("~/Dropbox/Zooniverse_work/Camera_Trapping_Ch5_Work/TEAM library 1.7.R")
 specActivity<-read_csv("SpeciesAcc.csv")
 
 
-SpeciesAcc$Photo.Time<-hms(SpeciesAcc$Photo.Time) #Fills in some NAs
+specActivity$Photo.Time<-hms(specActivity$Photo.Time) #Fills in some NAs
 
 activity_24h<-events.hours(SpeciesAcc) #Error here. Not working
 
