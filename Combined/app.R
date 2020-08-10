@@ -15,6 +15,7 @@ dataFinal<- read_csv("Data/CSVs/dataFinal.csv")
 mammals<- read_csv("Data/CSVs/mammals.csv")
 newData<- read_csv("Data/CSVs/newData.csv")
 divFinal<- read_csv("Data/CSVs/divFinal.csv")
+Activity <- read_csv("~/Documents/Shiny/Activity/Data/Activity.csv")
 
 
 #Load the shapefiles to prep the map
@@ -37,64 +38,197 @@ Forests_proj@data$Forest <- with(Forests@data, ifelse(
 ui <- fluidPage(
   
   # App title ----
-  titlePanel("North Country Wild Zooniverse Project"),
+  headerPanel("North Country Wild Zooniverse Project"),
   
   # Sidebar layout with input and output definitions ----
-  sidebarLayout(
+ # sidebarLayout(
     
-    # Sidebar panel for inputs ----
-    sidebarPanel(
-      
-      # Input: Slider for the number of bins ----
-      selectInput("forest", h3("Choose your Forest"),
-                  choices = c("All Forests", "South Hammond", "Donnerville", "Beaver Creek", "Whippoorwill Corners", "Whiskey Flats", "Degrasse"), selected = "All Forests"),
-      
-       checkboxGroupInput("species", 
-                         h3("Choose your Species"), 
-                         choices = list("All Mammals",
-                                        "White-tailed Deer",
-                                        "Chipmunk",
-                                        "Coyote",
-                                        "Fisher",
-                                        "Raccoon",
-                                        "Red Squirrel",
-                                        "Other Small Mammal",
-                                        "Gray Squirrel",
-                                        "Black Bear",
-                                        "Red Fox",
-                                        "Porcupine",
-                                        "Bobcat",
-                                        "Opossum",
-                                        "Weasel",
-                                        "Striped Skunk",
-                                        "Flying Squirrel",
-                                        "Snowshoe Hare",
-                                        "River Otter",
-                                        "Mink"),
-                         selected = "White-tailed Deer"),
-      h6("Powered by:"),
-    img(src = "NatureUpNorth.png", height = 100, width = 300),
-    ),
+    # # Sidebar panel for inputs ----
+    # sidebarPanel(
+    #   # Input: Slider for the number of bins ----
+    #   selectInput("forest", h3("Choose your Forest"),
+    #               choices = c("All Forests", "South Hammond", "Donnerville", "Beaver Creek", "Whippoorwill Corners", "Whiskey Flats", "Degrasse"), selected = "All Forests"),
+    #   
+    #   h6("Powered by:"),
+    # img(src = "NatureUpNorth.png", height = 100, width = 300),
+    # ),
     
     
     # Main panel for displaying outputs ----
-    mainPanel(  tabsetPanel(
-      tabPanel("Map of Study Sites", leafletOutput(outputId = "speciesmap")),
-      tabPanel("Number of Detections per Species",
-               plotOutput(outputId = "foresthist")),
-      tabPanel("Species Trophic Levels", plotOutput(outputId = "trophic")),
-      tabPanel("Forest Composition", plotOutput(outputId = "covariates")),
-      tabPanel("Forest Diversity", plotOutput(outputId = "diversity"))
-    )
-    )
-  )
+ tabsetPanel(
+   tabPanel(
+     headerPanel("Map of Study Sites"),
+     sidebarLayout(
+       sidebarPanel(checkboxGroupInput("species", 
+                                       h3("Choose your Species"), 
+                                       choices = list("All Mammals",
+                                                      "Black Bear",
+                                                      "Bobcat",
+                                                      "Chipmunk",
+                                                      "Coyote",
+                                                      "Fisher",
+                                                      "Flying Squirrel",
+                                                      "Gray Squirrel",
+                                                      "Mink",
+                                                      "Opossum",
+                                                      "Other Small Mammal",
+                                                      "Porcupine",
+                                                      "Raccoon",
+                                                      "Red Fox",
+                                                      "Red Squirrel",
+                                                      "River Otter",
+                                                      "Snowshoe Hare",
+                                                      "Striped Skunk",
+                                                      "Weasel",
+                                                      "White-tailed Deer"),
+                                       selected = "Black Bear"))
+     ),
+     mainPanel(
+       leafletOutput(outputId = "speciesmap")
+     )
+         
+   
+     ),
+   
+ 
+ 
+ 
+  
+ tabPanel(
+   headerPanel("Number of Detections per Species"),
+            sidebarLayout(
+   sidebarPanel(selectInput("forest", h3("Choose your Forest"),
+                        choices = c("All Forests", "South Hammond", "Donnerville", "Beaver Creek", "Whippoorwill Corners", "Whiskey Flats", "Degrasse"), selected = "All Forests"),
+    
+            checkboxGroupInput("species", 
+                                          h3("Choose your Species"), 
+                                          choices = list("All Mammals",
+                                                         "Black Bear",
+                                                         "Bobcat",
+                                                         "Chipmunk",
+                                                         "Coyote",
+                                                         "Fisher",
+                                                         "Flying Squirrel",
+                                                         "Gray Squirrel",
+                                                         "Mink",
+                                                         "Opossum",
+                                                         "Other Small Mammal",
+                                                         "Porcupine",
+                                                         "Raccoon",
+                                                         "Red Fox",
+                                                         "Red Squirrel",
+                                                         "River Otter",
+                                                         "Snowshoe Hare",
+                                                         "Striped Skunk",
+                                                         "Weasel",
+                                                         "White-tailed Deer"),
+                                                          selected = "Black Bear"))
+            ),        
+ mainPanel(
+   plotOutput(outputId = "foresthist")
+   )
+ ),
+ tabPanel(
+   headerPanel("Mammal Activity Patterns"),
+   sidebarLayout(         
+   sidebarPanel(selectInput("species", h3("Choose your Species"),
+                                   choices = c("All Mammals",
+                                               "Black Bear",
+                                               "Bobcat",
+                                               "Chipmunk",
+                                               "Coyote",
+                                               "Fisher",
+                                               "Flying Squirrel",
+                                               "Gray Squirrel",
+                                               "Mink",
+                                               "Opossum",
+                                               "Other Small Mammal",
+                                               "Porcupine",
+                                               "Raccoon",
+                                               "Red Fox",
+                                               "Red Squirrel",
+                                               "River Otter",
+                                               "Snowshoe Hare",
+                                               "Striped Skunk",
+                                               "Weasel",
+                                               "White-tailed Deer"), selected = "Black Bear"))
+   ),
+ mainPanel(
+   plotOutput(outputId = "activity")
+   )
+ ),
+ tabPanel(
+   headerPanel("Species Trophic Levels"),
+   sidebarLayout(         
+   sidebarPanel(selectInput("forest", h3("Choose your Forest"),
+                                   choices = c("All Forests", "South Hammond", "Donnerville", "Beaver Creek", "Whippoorwill Corners", "Whiskey Flats", "Degrasse"), selected = "All Forests"))
+   ),
+          mainPanel(
+            plotOutput(outputId = "trophic")
+            ) 
+ ),
+  
+ tabPanel(
+   headerPanel("Forest Composition"),
+               sidebarLayout(
+     sidebarPanel(selectInput("forest", h3("Choose your Forest"),
+                                            choices = c("All Forests", "South Hammond", "Donnerville", "Beaver Creek", "Whippoorwill Corners", "Whiskey Flats", "Degrasse"), selected = "All Forests"))
+               ),       
+              mainPanel(
+                plotOutput(outputId = "covariates")
+                )
+ ),
+tabPanel(
+  headerPanel("Forest Diversity"),
+                sidebarLayout(
+   sidebarPanel(selectInput("forest", h3("Choose your Forest"),
+                                            choices = c("All Forests", "South Hammond", "Donnerville", "Beaver Creek", "Whippoorwill Corners", "Whiskey Flats", "Degrasse"), selected = "All Forests"))
+            
+                ),
+             mainPanel(plotOutput(outputId = "diversity"))
+               )
 )
+)
+      
+    
+ 
+
 
 server <- function(input, output){
   #Map of Study Sites
   output$speciesmap<-renderLeaflet({
     
-#if("All Mammals" %in% input$species){
+if("All Mammals" %in% input$species){
+    data<-dat_sum
+    #Join data to shape file
+    Forests_proj@data <- left_join(Forests_proj@data, data, by = c("Forest"= "Forest"))
+    
+    pal <- colorNumeric("Blues", domain= data$number_det) 
+    
+    labels<-sprintf( "%s, Number of Detections %s", 
+                     Forests_proj$Forest, data$number_det) %>% lapply(htmltools::HTML)
+    
+    leaflet() %>% addTiles() %>% 
+      setView(lng = -75.169395, lat = 44.595466, zoom = 8) %>% 
+      addPolygons(
+        data = Forests_proj, 
+        fillColor = ~pal(data$number_det),
+        fillOpacity = 0.5,
+        weight = 1, 
+        col = 'red',
+        highlight = highlightOptions(#highlight lets you mouse over a county and have it change color
+          weight = 5,
+          color = "orange", 
+          bringToFront = T),
+        label = labels,
+        labelOptions = labelOptions(
+          style = list("font-weight" = "normal", padding = "3px 8px"),
+          textsize = "15px",
+          direction = "auto")
+      ) 
+}
+    else{
+    
   choices<-c(input$species)
   data<-dat_sum %>% filter(Species %in% choices)
  
@@ -125,6 +259,7 @@ server <- function(input, output){
         textsize = "15px",
         direction = "auto")
     ) 
+    }
 
   })
   
@@ -174,7 +309,34 @@ server <- function(input, output){
     }
     })
     
-  
+  #Species Activity Patterns
+    output$activity<-renderPlot({
+      
+      data<-switch(input$species, 
+                   "White-tailed Deer" = Activity %>% filter(bin == "DEERWHITETAILED"),
+                   "Chipmunk" = Activity %>% filter(bin == "CHIPMUNK"),
+                   "Coyote" = Activity %>% filter(bin == "COYOTE"),
+                   "Fisher" = Activity %>% filter(bin=="FISHER"),
+                   "Raccoon" = Activity %>% filter(bin =="RACCOON"),
+                   "Red Squirrel" = Activity %>% filter(bin == "SQUIRRELRED"),
+                   "Gray Squirrel" = Activity %>% filter(bin =="SQUIRRELGRAY"),
+                   "Black Bear" = Activity %>% filter(bin == "BLACKBEAR"),
+                   "Red Fox" = Activity %>% filter(bin == "FOXRED"),
+                   "Porcupine" = Activity %>% filter(bin == "PORCUPINE"),
+                   "Bobcat" = Activity %>% filter( bin == "BOBCAT"),
+                   "Weasel" = Activity %>% filter(bin == "WEASEL"),
+                   "Striped Skunk" = Activity %>% filter(bin == "SKUNKSTRIPED"),
+                   "Flying Squirrel" = Activity %>% filter(bin== "SQUIRRELFLYING"),
+                   "Snowshoe Hare" = Activity %>% filter(bin == "SNOWSHOEHARE"),
+                   "River Otter" = Activity %>% filter(bin == "RIVEROTTER"),
+                   "Mink" = Activity %>% filter(bin == "MINK"),
+                   "Other Small Mammal" = Activity %>% filter(bin == "OTHERSMALLMAMMAL"),
+                   "Opossum" = Activity %>% filter(bin == "OPOSSUM"))
+      
+      clock<-c(0:23)
+      clock24.plot(data$NumObs, clock, show.grid = T, lwd = 2, line.col = "blue", cex.lab = 0.5)
+      
+    })
 
 
 
