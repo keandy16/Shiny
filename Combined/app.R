@@ -38,28 +38,18 @@ Forests_proj@data$Forest <- with(Forests@data, ifelse(
 ui <- fluidPage(
   
   # App title ----
-  headerPanel("North Country Wild Zooniverse Project"),
+  titlePanel("North Country Wild Zooniverse Project"),
   
-  # Sidebar layout with input and output definitions ----
- # sidebarLayout(
-    
-    # # Sidebar panel for inputs ----
-    # sidebarPanel(
-    #   # Input: Slider for the number of bins ----
-    #   selectInput("forest", h3("Choose your Forest"),
-    #               choices = c("All Forests", "South Hammond", "Donnerville", "Beaver Creek", "Whippoorwill Corners", "Whiskey Flats", "Degrasse"), selected = "All Forests"),
-    #   
-    #   h6("Powered by:"),
-    # img(src = "NatureUpNorth.png", height = 100, width = 300),
-    # ),
-    
-    
+ 
     # Main panel for displaying outputs ----
  tabsetPanel(
    tabPanel(
      headerPanel("Map of Study Sites"),
      sidebarLayout(
-       sidebarPanel(checkboxGroupInput("species", 
+       sidebarPanel(h6("Powered by:"),
+                    img(src = "NatureUpNorth.png", height = 100, width = 300),
+                    ),
+         checkboxGroupInput("species", 
                                        h3("Choose your Species"), 
                                        choices = list("All Mammals",
                                                       "Black Bear",
@@ -84,7 +74,7 @@ ui <- fluidPage(
                                        selected = "Black Bear"))
      ),
      mainPanel(
-       leafletOutput(outputId = "speciesmap")
+       leafletOutput("speciesmap")
      )
          
    
@@ -97,7 +87,9 @@ ui <- fluidPage(
  tabPanel(
    headerPanel("Number of Detections per Species"),
             sidebarLayout(
-   sidebarPanel(selectInput("forest", h3("Choose your Forest"),
+   sidebarPanel(h6("Powered by:"),
+                img(src = "NatureUpNorth.png", height = 100, width = 300),
+     selectInput("forest", h3("Choose your Forest"),
                         choices = c("All Forests", "South Hammond", "Donnerville", "Beaver Creek", "Whippoorwill Corners", "Whiskey Flats", "Degrasse"), selected = "All Forests"),
     
             checkboxGroupInput("species", 
@@ -131,7 +123,9 @@ ui <- fluidPage(
  tabPanel(
    headerPanel("Mammal Activity Patterns"),
    sidebarLayout(         
-   sidebarPanel(selectInput("species", h3("Choose your Species"),
+   sidebarPanel(h6("Powered by:"),
+                img(src = "NatureUpNorth.png", height = 100, width = 300),
+     selectInput("species", h3("Choose your Species"),
                                    choices = c("All Mammals",
                                                "Black Bear",
                                                "Bobcat",
@@ -160,7 +154,9 @@ ui <- fluidPage(
  tabPanel(
    headerPanel("Species Trophic Levels"),
    sidebarLayout(         
-   sidebarPanel(selectInput("forest", h3("Choose your Forest"),
+   sidebarPanel(h6("Powered by:"),
+                img(src = "NatureUpNorth.png", height = 100, width = 300),
+     selectInput("forest", h3("Choose your Forest"),
                                    choices = c("All Forests", "South Hammond", "Donnerville", "Beaver Creek", "Whippoorwill Corners", "Whiskey Flats", "Degrasse"), selected = "All Forests"))
    ),
           mainPanel(
@@ -171,7 +167,9 @@ ui <- fluidPage(
  tabPanel(
    headerPanel("Forest Composition"),
                sidebarLayout(
-     sidebarPanel(selectInput("forest", h3("Choose your Forest"),
+     sidebarPanel(h6("Powered by:"),
+                  img(src = "NatureUpNorth.png", height = 100, width = 300),
+       selectInput("forest", h3("Choose your Forest"),
                                             choices = c("All Forests", "South Hammond", "Donnerville", "Beaver Creek", "Whippoorwill Corners", "Whiskey Flats", "Degrasse"), selected = "All Forests"))
                ),       
               mainPanel(
@@ -181,14 +179,16 @@ ui <- fluidPage(
 tabPanel(
   headerPanel("Forest Diversity"),
                 sidebarLayout(
-   sidebarPanel(selectInput("forest", h3("Choose your Forest"),
+   sidebarPanel(h6("Powered by:"),
+                img(src = "NatureUpNorth.png", height = 100, width = 300),
+     selectInput("forest", h3("Choose your Forest"),
                                             choices = c("All Forests", "South Hammond", "Donnerville", "Beaver Creek", "Whippoorwill Corners", "Whiskey Flats", "Degrasse"), selected = "All Forests"))
             
                 ),
              mainPanel(plotOutput(outputId = "diversity"))
                )
 )
-)
+
       
     
  
