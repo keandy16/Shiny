@@ -73,9 +73,12 @@ ui <- fluidPage(
                                                               "White-tailed Deer"),
                                                selected = "Black Bear"),
                             
-                            img(src = "NatureUpNorth.png", height = 100, width = 300)
+                            img(src = "NatureUpNorth.png", height = 100, width = 240)
                ),
-               mainPanel(leafletOutput("speciesmap"))   
+               mainPanel(h5("The map below displays the state forests we sampled for this study. 
+                            Select the mammals you want to learn about and pan over the forests
+                            (outlined in red) to see how many total detections we were able to get."),
+                 leafletOutput("speciesmap"))   
              )
     ),
     #Number of Detections per Species per Forest 
@@ -113,9 +116,11 @@ ui <- fluidPage(
                                                               "White-tailed Deer"),
                                                selected = "Black Bear"),
                             
-                            img(src = "NatureUpNorth.png", height = 100, width = 300)
+                            img(src = "NatureUpNorth.png", height = 100, width = 240)
                ),
-               mainPanel(plotOutput(outputId = "foresthist"))   
+               mainPanel(h5("This graph displays the number of detections per species per study site.
+               Select the forest and which mammals you want to learn about and see the number of detections."),
+                         plotOutput(outputId = "foresthist"))   
              )
     ),
     #Mammal Activity Patterns 
@@ -143,9 +148,13 @@ ui <- fluidPage(
                                                               "White-tailed Deer"),
                                                selected = "Black Bear"),
                             
-                            img(src = "NatureUpNorth.png", height = 100, width = 300)
+                            img(src = "NatureUpNorth.png", height = 100, width = 240)
                ),
-               mainPanel(plotOutput(outputId = "activity"))   
+               mainPanel(h5("Mammals are not all active at the same time! Select a mammal using the tab in the 
+               panel to the left and learn what times of day that mammal was detected by our cameras.
+               The graph is shaped like a clock with 0-23 symbolizing the hour we detected the mammal.
+               The x-axis lets you know how many detections we had during that hour."),
+                 plotOutput(outputId = "activity"))   
              )
     ),
     #Species Trophic Level
@@ -161,9 +170,11 @@ ui <- fluidPage(
                                                     "Degrasse"), selected = "South Hammond"),
                         
                             
-                            img(src = "NatureUpNorth.png", height = 100, width = 300)
+                            img(src = "NatureUpNorth.png", height = 100, width = 240)
                ),
-               mainPanel(plotOutput(outputId = "trophic"))   
+               mainPanel(h5("This graph displays the dietary preferences of the mammals detected at each 
+                            study site. Select the forest using the tab in the panel to the left and compare graphs."),
+                         plotOutput(outputId = "trophic"))   
              )
     ),
     #Forest Composition
@@ -179,9 +190,12 @@ ui <- fluidPage(
                                                     "Degrasse"), selected = "South Hammond"),
                             
                             
-                            img(src = "NatureUpNorth.png", height = 100, width = 300)
+                            img(src = "NatureUpNorth.png", height = 100, width = 240)
                ),
-               mainPanel(plotOutput(outputId = "covariates"))   
+               mainPanel(h5("The pie chart below shows the composition of  each study site. Select 
+                            the forest using the tab in the panel to the left and compare graphs. If you 
+                            select 'All Forests' the pie chart shows an average across all forests." ),
+                         plotOutput(outputId = "covariates"))   
              )
     ),
     #Forest Diversity
@@ -197,9 +211,12 @@ ui <- fluidPage(
                                                     "Degrasse"), selected = "South Hammond"),
                             
                             
-                            img(src = "NatureUpNorth.png", height = 100, width = 300)
+                            img(src = "NatureUpNorth.png", height = 100, width = 240)
                ),
-               mainPanel(plotOutput(outputId = "diversity"))   
+               mainPanel(h5("This graph displays three different diversity indices calculated per study site.
+               The three measures of diversity include: Shannon Index, Inverse Simpson Index, and Species Richness. 
+                            Select the forest using the tab in the panel to the left and compare graphs."),
+                         plotOutput(outputId = "diversity"))   
              )
     )
     
@@ -222,10 +239,10 @@ server <- function(input, output){
     #Join data to shape file
     Forests_proj@data <- left_join(Forests_proj@data, data, by = c("Forest"= "Forest"))
     pal <- colorNumeric("Blues", domain= Forests_proj$number_det) 
-    labels<-sprintf( "%s, Number of Detections %s", 
+    labels<-sprintf( "%s, %s Detections", 
                      Forests_proj$Forest, Forests_proj$number_det) %>% lapply(htmltools::HTML)
     leaflet() %>% addTiles() %>% 
-      setView(lng = -75.169395, lat = 44.595466, zoom = 8) %>% 
+      setView(lng = -75.169395, lat = 44.595466, zoom = 8.5) %>% 
       addPolygons(
         data = Forests_proj, 
         fillColor = ~pal(data$number_det),
@@ -246,10 +263,7 @@ server <- function(input, output){
   #Number of Detections per Species per Forest
   output$foresthist <- renderPlot({
     
-    choices<-c(input$animals)
-    data<-newData %>% filter(Species %in% choices)
-    study<-reactive(switch(input$forest,
-                           if("All Mammals" %in% input$animals){
+     if("All Mammals" %in% input$animals){
                              choices<-c(unique(newData$Species))
                              data<-newData %>% filter(Species %in% choices)
                              study<-reactive(switch(input$forest,
@@ -288,8 +302,8 @@ server <- function(input, output){
                                ylab("Number of Detections") +
                                theme(axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5))
                              
-                           }))
-  })
+                           }
+    })
   #Species Activity Patterns
   output$activity<-renderPlot({
     
@@ -388,12 +402,14 @@ server <- function(input, output){
                  "Whippoorwill Corners" = divFinal %>% filter(Forest == "WHIP"),
                  "Whiskey Flats" = divFinal %>% filter(Forest == "WF"),)
     
-    ggplot(data, aes(x= Forest, y = Index, fill = Diversity_Index)) + 
+    ggplot(data, aes(x= Forest_Name, y = Index, fill = Diversity_Index)) + 
       geom_bar(stat = "identity",position= position_dodge(), width = 0.7) +
-      labs(title = "Diversity Indices per Forest", x= "Forest", y= "Diversity Index") + theme (plot.title =element_text(hjust = 0.5)) + 
+      labs(title = "Diversity Indices per Forest", x= "Forest", y= "Diversity Index") +
+     theme (plot.title =element_text(hjust = 0.5),
+              axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5)) + 
       scale_fill_manual(values = c("Shannon Index" = "#165970",
                                    "Inverse Simpson Index" = "#543b1f",
-                                   "Species Richness" = "#C6ABE1"))
+                                   "Species Richness" = "#C6ABE1")) 
     
   })
   
