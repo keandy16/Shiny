@@ -49,35 +49,19 @@ ui <- fluidPage(
     #Map of Study Sites
     tabPanel("Map of Study Sites", fluid = TRUE,
              sidebarLayout(
-               sidebarPanel(checkboxGroupInput("species", 
-                                               h3("Choose your Species"), 
-                                               choices = list("All Mammals",
-                                                              "Black Bear",
-                                                              "Bobcat",
-                                                              "Chipmunk",
-                                                              "Coyote",
-                                                              "Fisher",
-                                                              "Flying Squirrel",
-                                                              "Gray Squirrel",
-                                                              "Mink",
-                                                              "Opossum",
-                                                              "Other Small Mammal",
-                                                              "Porcupine",
-                                                              "Raccoon",
-                                                              "Red Fox",
-                                                              "Red Squirrel",
-                                                              "River Otter",
-                                                              "Snowshoe Hare",
-                                                              "Striped Skunk",
-                                                              "Weasel",
-                                                              "White-tailed Deer"),
-                                               selected = "Black Bear"),
+               sidebarPanel(selectInput("species", h3("Choose your Species"),
+                                        choices = c("All Mammals", "White-tailed Deer", "Chipmunk", "Coyote", "Fisher",
+                                                    "Raccoon", "Red Squirrel", "Other Small Mammal", 
+                                                    "Gray Squirrel", "Black Bear", "Red Fox", "Porcupine", 
+                                                    "Bobcat", "Opossum", "Weasel", "Striped Skunk",
+                                                    "Flying Squirrel", "Snowshoe Hare", "River Otter", 
+                                                    "Mink"), selected = "All Mammals"),
                             
                             img(src = "NatureUpNorth.png", height = 100, width = 240)
                ),
-               mainPanel(h5("The map below displays the state forests we sampled for this study. 
-                            Select the mammals you want to learn about and pan over the forests
-                            (outlined in red) to see how many total detections we were able to get."),
+               mainPanel(h5("Use the map below to explore the state forests we sampled for this study. 
+                            Select the mammal you want to learn about and pan over the forests
+                            (outlined in red) to see how many detections we were able to get."),
                  leafletOutput("speciesmap"))   
              )
     ),
@@ -229,36 +213,80 @@ server <- function(input, output){
 #Map of Study Sites
   output$speciesmap<-renderLeaflet({
     
-    if("All Mammals" %in% input$species){
-      data<-dat_sum
+    if(input$species == "All Mammals"){
+      data<-dat_sum %>% group_by(Forest) %>% summarise(
+        number_det = sum(number_det)
+      )
+      Forests_proj@data <- left_join(Forests_proj@data, data, by = c("Forest"= "Forest"))
+      pal <- colorNumeric(c("white", "navy"), domain= data$number_det, na.color = "red") 
+      labels<-sprintf( "%s, %s Detections", 
+                       Forests_proj$Forest, Forests_proj$number_det) %>% lapply(htmltools::HTML)
+      leaflet() %>% addTiles() %>% 
+        setView(lng = -75.169395, lat = 44.595466, zoom = 8.5) %>% 
+        addPolygons(
+          data = Forests_proj, 
+          fillColor = ~pal(data$number_det),
+          fillOpacity = 0.5,
+          weight = 1, 
+          col = 'red',
+          highlight = highlightOptions(#highlight lets you mouse over a site and have it change color
+            weight = 5,
+            color = "orange", 
+            bringToFront = T),
+          label = labels,
+          labelOptions = labelOptions(
+            style = list("font-weight" = "normal", padding = "3px 8px"),
+            textsize = "15px",
+            direction = "auto")) 
       
     } else{
-      choices<-c(input$species)
-      data<-dat_sum %>% filter(Species %in% choices)
+      data<-switch(input$species, 
+                   "White-tailed Deer" = dat_sum %>% filter(choice == "DEERWHITETAILED"),
+                   "Chipmunk" = dat_sum %>% filter(choice == "CHIPMUNK"),
+                   "Coyote" = dat_sum %>% filter(choice == "COYOTE"),
+                   "Fisher" = dat_sum %>% filter(choice == "FISHER"),
+                   "Raccoon" = dat_sum %>% filter(choice == "RACCOON"),
+                   "Red Squirrel" = dat_sum %>% filter(choice == "SQUIRRELRED"),
+                   "Gray Squirrel" = dat_sum %>% filter(choice == "SQUIRRELGRAY"),
+                   "Black Bear" = dat_sum %>% filter(choice == "BLACKBEAR"),
+                   "Red Fox" = dat_sum %>% filter(choice == "FOXRED"),
+                   "Porcupine" = dat_sum %>% filter(choice == "PORCUPINE"),
+                   "Bobcat" = dat_sum %>% filter(choice == "BOBCAT"),
+                   "Weasel" = dat_sum %>% filter(choice == "WEASEL"),
+                   "Striped Skunk" = dat_sum %>% filter(choice == "SKUNKSTRIPED"),
+                   "Flying Squirrel" = dat_sum %>% filter(choice == "SQUIRRELFLYING"),
+                   "Snowshoe Hare" = dat_sum %>% filter(choice == "SNOWSHOEHARE"),
+                   "River Otter" = dat_sum %>% filter(choice == "RIVEROTTER"),
+                   "Mink" = dat_sum %>% filter(choice == "MINK"),
+                   "Other Small Mammal" = dat_sum %>% filter(choice == "OTHERSMALLMAMMAL"),
+                   "Opossum" = dat_sum %>% filter(choice == "OPOSSUM"),)
+      #Join data to shape file
+      Forests_proj@data <- left_join(Forests_proj@data, data, by = c("Forest"= "Forest"))
+      pal <- colorNumeric("Blues", domain= data$number_det) 
+      labels<-sprintf( "%s, %s Detections", 
+                       Forests_proj$Forest, data$number_det) %>% lapply(htmltools::HTML)
+      leaflet() %>% addTiles() %>% 
+        setView(lng = -75.169395, lat = 44.595466, zoom = 8.5) %>% 
+        addPolygons(
+          data = Forests_proj, 
+          fillColor = ~pal(data$number_det),
+          fillOpacity = 0.5,
+          weight = 1, 
+          col = 'red',
+          highlight = highlightOptions(#highlight lets you mouse over a site and have it change color
+            weight = 5,
+            color = "orange", 
+            bringToFront = T),
+          label = labels,
+          labelOptions = labelOptions(
+            style = list("font-weight" = "normal", padding = "3px 8px"),
+            textsize = "15px",
+            direction = "auto")) 
     }
-    #Join data to shape file
-    Forests_proj@data <- left_join(Forests_proj@data, data, by = c("Forest"= "Forest"))
-    pal <- colorNumeric("Blues", domain= Forests_proj$number_det) 
-    labels<-sprintf( "%s, %s Detections", 
-                     Forests_proj$Forest, Forests_proj$number_det) %>% lapply(htmltools::HTML)
-    leaflet() %>% addTiles() %>% 
-      setView(lng = -75.169395, lat = 44.595466, zoom = 8.5) %>% 
-      addPolygons(
-        data = Forests_proj, 
-        fillColor = ~pal(data$number_det),
-        fillOpacity = 0.5,
-        weight = 1, 
-        col = 'red',
-        highlight = highlightOptions(#highlight lets you mouse over a site and have it change color
-          weight = 5,
-          color = "orange", 
-          bringToFront = T),
-        label = labels,
-        labelOptions = labelOptions(
-          style = list("font-weight" = "normal", padding = "3px 8px"),
-          textsize = "15px",
-          direction = "auto")) 
+   
   })
+  
+  
   
   #Number of Detections per Species per Forest
   output$foresthist <- renderPlot({
@@ -276,7 +304,7 @@ server <- function(input, output){
                                                     "Degrasse" = data %>% filter(Forest == "Degrasse"))
                              )
                              ggplot(study(), aes(Species)) +
-                               geom_histogram(stat = "count", position = "dodge") +
+                               geom_histogram(stat = "count", position = "dodge", fill = '#165970', colour = '#543b1f') +
                                theme_bw() +
                                xlab("Species") +
                                ylab("Number of Detections") +
@@ -296,7 +324,7 @@ server <- function(input, output){
                                                     "Degrasse" = data %>% filter(Forest == "Degrasse"))
                              )
                              ggplot(study(), aes(Species)) +
-                               geom_histogram(stat = "count", position = "dodge") +
+                               geom_histogram(stat = "count", position = "dodge", fill = '#165970', colour = '#543b1f') +
                                theme_bw() +
                                xlab("Species") +
                                ylab("Number of Detections") +
@@ -306,6 +334,9 @@ server <- function(input, output){
     })
   #Species Activity Patterns
   output$activity<-renderPlot({
+    
+    title<- sprintf( "%s Activity Patterns", input$mammals) %>% lapply(htmltools::HTML)
+    
     
     data<-switch(input$mammals, 
                  "White-tailed Deer" = Activity %>% filter(bin == "DEERWHITETAILED"),
@@ -329,7 +360,7 @@ server <- function(input, output){
                  "Opossum" = Activity %>% filter(bin == "OPOSSUM"))
     
     clock<-c(0:23)
-    clock24.plot(data$NumObs, clock, show.grid = T, lwd = 2, line.col = "blue", cex.lab = 0.5)
+    clock24.plot(data$NumObs, clock, show.grid = T, lwd = 2, line.col = "#165970", cex.lab = 0.5, main = title)
     
   })
   
