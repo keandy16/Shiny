@@ -49,7 +49,7 @@ all_forests$label<-paste(all_forests$variable, round(all_forests$value, 1), sep 
 ui <- fluidPage(
   
   # App title ----
-  titlePanel("North Country Wild Zooniverse Project"),
+  titlePanel("North Country Wild Project"),
   tabsetPanel(
     #Map of Study Sites
     tabPanel("Map of Study Sites", fluid = TRUE,
@@ -82,12 +82,12 @@ ui <- fluidPage(
                             h6("Created by Kate Andy, 2020")
                ),
                
-               mainPanel(h4("Welcome to the North Country Wild Zooniverse Project! The goal of this project is to 
+               mainPanel(h4("Welcome to the North Country Wild Project! The goal of this project is to 
                show you what mammals are out there in St. Lawrence County. A the top of this page are tabs you 
                can click on that will bring up a different interactive graphic. Let's get exploring!"),
               
-              h5("Use the map below to explore the state forests we sampled for this study. 
-                            Select the mammal you want to learn about and pan over the forests
+              h5("Use the map below to explore the state forests we sampled for this study in 2019. 
+                            Select the mammal you want to learn about on the left and pan over the forests
                             (outlined in red) to see how many detections we were able to get."),
                  leafletOutput("speciesmap"))   
              )
@@ -131,7 +131,7 @@ ui <- fluidPage(
                             img(src = "NatureUpNorth.png", height = 100, width = 240)
                ),
                mainPanel(h5("This graph displays the number of detections per species per study site.
-               Select the forest and which mammals you want to learn about and see the number of detections."),
+               Select the forest and which mammals you want to learn about on the left and see the number of detections."),
                          plotOutput(outputId = "foresthist"))   
              )
     ),
@@ -157,7 +157,7 @@ ui <- fluidPage(
                                                     "White-tailed Deer"),
                                         selected = "Black Bear"),
                             
-                            checkboxInput("rare", "Not Frequently Dectected Species", value = FALSE),
+                            checkboxInput("rare", "Species Detected Infrequently", value = FALSE),
                             
                             
                             img(src = "NatureUpNorth.png", height = 100, width = 240)
@@ -185,8 +185,10 @@ ui <- fluidPage(
                             
                             img(src = "NatureUpNorth.png", height = 100, width = 240)
                ),
-               mainPanel(h5("This graph displays the dietary preferences of the mammals detected at each 
-                            study site. Select the forest using the tab in the panel to the left and compare graphs."),
+               mainPanel(h5("For this graph, we grouped species according to their dietary preference. 
+               Herbivores eat primarily plants, mesocarivores are medium-sized mammals with meat-eating diets,
+               omnivores eat a variety of foods, and carnivores eat primarily meat. 
+                            Select the forest using the tab in the panel to the left and compare graphs."),
                          plotOutput(outputId = "trophic"))   
              )
     ),
@@ -205,8 +207,9 @@ ui <- fluidPage(
                             
                             img(src = "NatureUpNorth.png", height = 100, width = 240)
                ),
-               mainPanel(h5("The graphic below shows the forest composition of each study site. Choose 
-                            a forest using the tab in the panel to the left and compare results. If you 
+               mainPanel(h5("The graphic below shows the forest composition of each study site. Forests are not
+               homogeneous. Even a forest composed of mostly deciduous trees has other subhabitats present. Choose 
+                            a forest using the tab in the panel to the left to see how forests vary. If you 
                             select 'All Forests' the graphic will show an average across all forests." ),
                          plotOutput(outputId = "covariates"))   
              )
@@ -560,11 +563,11 @@ server <- function(input, output){
     
     ggplot(data, aes(x= Forest_Name, y = Index, fill = Diversity_Index)) + 
       geom_bar(stat = "identity",position= position_dodge(), width = 0.7) +
-      labs(title = "Diversity Indices per Forest", x= "Forest", y= "Diversity Index") +
+      labs(title = "Diversity Indices per Forest", x= "Forest", y= "Diversity Index", fill = "Diversity Index") +
      theme (plot.title =element_text(hjust = 0.5),
               axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5)) + 
       scale_fill_manual(values = c("Shannon Index" = "#165970",
-                                   "Inverse Simpson Index" = "#543b1f",
+                                   "Simpson Index" = "#543b1f",
                                    "Species Richness" = "#C6ABE1")) 
     
   })
