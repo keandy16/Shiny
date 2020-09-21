@@ -13,6 +13,7 @@ library(rgdal)
 library(leaflet)
 library(plotrix)
 library(treemapify)
+library(plotly)
 
 #Load the csv files
 all_forests <- read_csv("Data/CSVs/all_forests.csv")
@@ -131,8 +132,54 @@ ui <- fluidPage(
                             img(src = "NatureUpNorth.png", height = 100, width = 240)
                ),
                mainPanel(h5("This graph displays the number of detections per species per study site.
-               Select the forest and which mammals you want to learn about on the left and see the number of detections."),
-                         plotOutput(outputId = "foresthist"))   
+               Select the forest and which mammals you want to learn about on the left and pan over 
+                            the bars on the graph to see the number of detections."),
+                         plotlyOutput(outputId = "foresthist"))   
+             )
+    ),
+    #Number of Detections per Species per Forest Tab #2
+    tabPanel("Species Detections per Forest", fluid = TRUE,
+             sidebarLayout(
+               sidebarPanel(selectInput("spec", h3("Choose your Species"),
+                                        choices = c("All Mammals",
+                                                    "Black Bear",
+                                                    "Bobcat",
+                                                    "Chipmunk",
+                                                    "Cottontail Rabbit",
+                                                    "Coyote",
+                                                    "Fisher",
+                                                    "Flying Squirrel",
+                                                    "Gray Squirrel",
+                                                    "Mink",
+                                                    "Opossum",
+                                                    "Other Small Mammal",
+                                                    "Porcupine",
+                                                    "Raccoon",
+                                                    "Red Fox",
+                                                    "Red Squirrel",
+                                                    "River Otter",
+                                                    "Snowshoe Hare",
+                                                    "Striped Skunk",
+                                                    "Weasel",
+                                                    "White-tailed Deer"),
+                                        selected = "Black Bear"),
+                            checkboxGroupInput("forests",
+                                               h3("Choose your Forest"),
+                                               choices = list("South Hammond", 
+                                                              "Donnerville", 
+                                                              "Beaver Creek", 
+                                                              "Whippoorwill Corners", 
+                                                              "Whiskey Flats", 
+                                                              "Degrasse"), selected = "South Hammond"),
+                                                
+                            
+                            img(src = "NatureUpNorth.png", height = 100, width = 240)
+               ),
+               mainPanel(h5("This graph is another way to represent the number of species
+               detections per study site. On the panel to the left, first select the species you want to learn about using the 
+               menu and then select your forest(s) by clicking the checkboxes. Pan over 
+                            the bars on the graph to see the number of detections per forest."),
+                         plotlyOutput(outputId = "speciesdetect"))   
              )
     ),
     #Mammal Activity Patterns 
@@ -170,6 +217,7 @@ ui <- fluidPage(
                          plotOutput(outputId = "activity"), uiOutput(outputId = "image"))   
              )
     ),
+  
     #Species Trophic Level
     tabPanel("Species Trophic Level", fluid = TRUE,
              sidebarLayout(
@@ -189,7 +237,7 @@ ui <- fluidPage(
                Herbivores eat primarily plants, mesocarivores are medium-sized mammals with meat-eating diets,
                omnivores eat a variety of foods, and carnivores eat primarily meat. 
                             Select the forest using the tab in the panel to the left and compare graphs."),
-                         plotOutput(outputId = "trophic"))   
+                         plotlyOutput(outputId = "trophic"))   
              )
     ),
     #Forest Composition
@@ -230,9 +278,11 @@ ui <- fluidPage(
                             img(src = "NatureUpNorth.png", height = 100, width = 240)
                ),
                mainPanel(h5("This graph displays three different diversity indices calculated per study site.
-               The three measures of diversity include: Shannon Index, Inverse Simpson Index, and Species Richness. 
-                            Select the forest using the tab in the panel to the left and compare graphs."),
-                         plotOutput(outputId = "diversity"))   
+              Shannon and Simpson Indices measure diversity by accounting for species abundance and evenness.
+              Species Richness is the total number of species detected.
+                            Select the forest using the tab in the panel to the left and learn how species
+                            diversity vary per forest."),
+                         plotlyOutput(outputId = "diversity"))   
              )
     )
     
@@ -322,7 +372,7 @@ server <- function(input, output){
   
   
   #Number of Detections per Species per Forest
-  output$foresthist <- renderPlot({
+  output$foresthist <- renderPlotly({
     
      if("All Mammals" %in% input$animals){
                              choices<-c(unique(newData$Species))
@@ -336,7 +386,7 @@ server <- function(input, output){
                                                     "Whiskey Flats" = data %>% filter(Forest == "Whiskey Flats"),
                                                     "Degrasse" = data %>% filter(Forest == "Degrasse"))
                              )
-                             ggplot(study(), aes(Species)) +
+                             p<- ggplot(study(), aes(Species)) +
                                geom_histogram(stat = "count", position = "dodge", fill = '#165970', colour = '#543b1f') +
                                theme_bw() +
                                xlab("Species") +
@@ -344,6 +394,7 @@ server <- function(input, output){
                                theme(axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5)) + 
                                labs(title = "Number of Detections per Species") +
                              theme(plot.title = element_text(hjust=0.5))
+                             ggplotly(p) %>% config(displayModeBar = F)
                              
                            }
                            else{
@@ -358,7 +409,7 @@ server <- function(input, output){
                                                     "Whiskey Flats" = data %>% filter(Forest == "Whiskey Flats"),
                                                     "Degrasse" = data %>% filter(Forest == "Degrasse"))
                              )
-                             ggplot(study(), aes(Species)) +
+                             p<-ggplot(study(), aes(Species)) +
                                geom_histogram(stat = "count", position = "dodge", fill = '#165970', colour = '#543b1f') +
                                theme_bw() +
                                xlab("Species") +
@@ -366,9 +417,52 @@ server <- function(input, output){
                                theme(axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5)) +
                                labs(title = "Number of Detections per Species") +
                              theme(plot.title = element_text(hjust=0.5))
+                             ggplotly(p) %>% config(displayModeBar = F)
                              
                            }
     })
+  #Number of Detections per Species per Forest part #2
+  output$speciesdetect <- renderPlotly({
+   
+      choices<-c(input$forests)
+      data<-newData %>% filter(Forest %in% choices)
+      study<-reactive(switch(input$spec,
+                             "All Mammals" = data,
+                             "White-tailed Deer" = data %>% filter(Species == "White-tailed Deer"),
+                             "Chipmunk" = data %>% filter(Species == "Chipmunk"),
+                             "Cottontail Rabbit" = data %>% filter(Species == "Cottontail Rabbit"),
+                             "Coyote" = data %>% filter(Species == "Coyote"),
+                             "Fisher" = data %>% filter(Species == "Fisher"),
+                             "Raccoon" = data %>% filter(Species == "Raccoon"),
+                             "Red Squirrel" = data %>% filter(Species == "Red Squirrel"),
+                             "Gray Squirrel" = data %>% filter(Species == "Gray Squirrel"),
+                             "Black Bear" = data %>% filter(Species == "Black Bear"),
+                             "Red Fox" = data %>% filter(Species == "Red Fox"),
+                             "Porcupine" = data %>% filter(Species == "Porcupine"),
+                             "Bobcat" = data %>% filter(Species == "Bobcat"),
+                             "Weasel" = data %>% filter(Species == "Weasel"),
+                             "Striped Skunk" = data %>% filter(Species == "Striped Skunk"),
+                             "Flying Squirrel" = data %>% filter(Species == "Flying Squirrel"),
+                             "Snowshoe Hare" = data %>% filter(Species == "Snowshoe Hare"),
+                             "River Otter" = data %>% filter(Species == "River Otter"),
+                             "Mink" = data %>% filter(Species == "Mink"),
+                             "Other Small Mammal" = data %>% filter(Species == "Other Small Mammal"),
+                             "Opossum" = data %>% filter(Species == "Opposum"))
+      )
+      
+     p<-ggplot(study(), aes(Forest)) +
+        geom_histogram(stat = "count", position = "dodge", fill = '#165970', colour = '#543b1f') +
+        theme_bw() +
+        xlab("Forest") +
+        ylab("Number of Detections") +
+        theme(axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5)) +
+        labs(title = "Number of Species Detections per Forest") +
+        theme(plot.title = element_text(hjust=0.5))
+     ggplotly(p) %>% config(displayModeBar = F)
+      
+      
+      
+  })
   #Species Activity Patterns
   output$activity<-renderPlot({
     
@@ -388,23 +482,6 @@ server <- function(input, output){
       
     }
     
-    #Individual graphs for activity
-    # if(input$mammals == "Mink"| input$mammals== "River Otter" | input$mammals == "Snowshoe Hare"| input$mammals == "Striped Skunk"){
-    #   data<-switch(input$mammals,
-    #                "Snowshoe Hare" = Activity %>% filter(bin == "SNOWSHOEHARE"),
-    #                "River Otter" = Activity %>% filter(bin == "RIVEROTTER"),
-    #                "Mink" = Activity %>% filter(bin == "MINK"),
-    #                "Striped Skunk" = Activity %>% filter(bin == "SKUNKSTRIPED")
-    #                )
-    #   ggplot(data, aes(truncHour))+
-    #     geom_histogram(stat = "count", position = "dodge", fill = '#165970', colour = '#543b1f') +
-    #     theme_bw() +
-    #     xlab("Time of Detection (hour)") +
-    #     ylab("Number of Detections") +
-    #     theme(axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5)) + 
-    #     labs(title = "Number of Detections per Hour") +
-    #     theme(plot.title = element_text(hjust=0.5))
-    # }
     else{
       data<-switch(input$mammals, 
                    "White-tailed Deer" = Activity %>% filter(bin == "DEERWHITETAILED"),
@@ -492,7 +569,7 @@ server <- function(input, output){
   
   
   #Species Trophic Levels
-  output$trophic <- renderPlot({
+  output$trophic <- renderPlotly({
     
     data<-switch(input$sites, 
                  "All Forests" = mammals,
@@ -503,11 +580,11 @@ server <- function(input, output){
                  "Degrasse" = mammals %>% filter(ForestName == "DEG"),
                  "Whippoorwill Corners" = mammals %>% filter(ForestName == "WHIP"),)
     
-    ggplot(data, aes(Trophic)) + 
+    p<-ggplot(data, aes(Diet)) + 
       geom_histogram(stat = "count", position = "dodge", fill = '#165970', colour = '#543b1f') + 
       labs(title = "Trophic Levels per Forest", x="Trophic Level", y="Number of Detections") +
       theme(axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5))+ theme(plot.title = element_text(hjust=0.5))
-    
+    ggplotly(p) %>% config(displayModeBar = F)
     
   })
   #Forest Composition
@@ -545,23 +622,24 @@ server <- function(input, output){
       )+
       labs(title="Forest Composition",
            fill = "Land Use Category")+ theme(plot.title = element_text(hjust=0.5))
+    
   
     
     
   })
   #Forest Diversity 
-  output$diversity <- renderPlot({
+  output$diversity <- renderPlotly({
     
     data<-switch(input$study, 
                  "All Forests" = divFinal,
-                 "South Hammond" = divFinal %>% filter(Forest == "SH"),
-                 "Beaver Creek" = divFinal %>% filter(Forest == "BC"),
-                 "Donnerville" = divFinal %>% filter(Forest == "DON"),
-                 "Degrasse" = divFinal %>% filter(Forest == "DEG"),
-                 "Whippoorwill Corners" = divFinal %>% filter(Forest == "WHIP"),
-                 "Whiskey Flats" = divFinal %>% filter(Forest == "WF"),)
+                 "South Hammond" = divFinal %>% filter(Forest_Code == "SH"),
+                 "Beaver Creek" = divFinal %>% filter(Forest_Code == "BC"),
+                 "Donnerville" = divFinal %>% filter(Forest_Code == "DON"),
+                 "Degrasse" = divFinal %>% filter(Forest_Code == "DEG"),
+                 "Whippoorwill Corners" = divFinal %>% filter(Forest_Code == "WHIP"),
+                 "Whiskey Flats" = divFinal %>% filter(Forest_Code == "WF"),)
     
-    ggplot(data, aes(x= Forest_Name, y = Index, fill = Diversity_Index)) + 
+    p<- ggplot(data, aes(x= Forest, y = Index, fill = Diversity)) + 
       geom_bar(stat = "identity",position= position_dodge(), width = 0.7) +
       labs(title = "Diversity Indices per Forest", x= "Forest", y= "Diversity Index", fill = "Diversity Index") +
      theme (plot.title =element_text(hjust = 0.5),
@@ -569,6 +647,7 @@ server <- function(input, output){
       scale_fill_manual(values = c("Shannon Index" = "#165970",
                                    "Simpson Index" = "#543b1f",
                                    "Species Richness" = "#C6ABE1")) 
+    ggplotly(p) %>% config(displayModeBar = F)
     
   })
   
