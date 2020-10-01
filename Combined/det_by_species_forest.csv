@@ -1,0 +1,135 @@
+"","Species","Forest","number_det"
+"1","Black Bear","Beaver Creek",5
+"2","Black Bear","Donnerville",2
+"3","Black Bear","South Hammond",6
+"4","Black Bear","Whippoorwill Corners",1
+"5","Black Bear","Whiskey Flats",6
+"6","Blue Jay","Beaver Creek",1
+"7","Blue Jay","Degrasse",7
+"8","Blue Jay","Donnerville",3
+"9","Blue Jay","South Hammond",2
+"10","Blue Jay","Whippoorwill Corners",5
+"11","Blue Jay","Whiskey Flats",12
+"12","Bobcat","Beaver Creek",4
+"13","Bobcat","Donnerville",1
+"14","Bobcat","South Hammond",1
+"15","Chipmunk","Degrasse",24
+"16","Chipmunk","Donnerville",39
+"17","Chipmunk","South Hammond",61
+"18","Chipmunk","Whippoorwill Corners",21
+"19","Chipmunk","Whiskey Flats",23
+"20","Cottontail Rabbit","Beaver Creek",1
+"21","Cottontail Rabbit","Degrasse",9
+"22","Cottontail Rabbit","South Hammond",3
+"23","Cottontail Rabbit","Whiskey Flats",3
+"24","Coyote","Beaver Creek",3
+"25","Coyote","Degrasse",17
+"26","Coyote","Donnerville",3
+"27","Coyote","South Hammond",10
+"28","Coyote","Whippoorwill Corners",18
+"29","Coyote","Whiskey Flats",40
+"30","Crow or Raven","South Hammond",4
+"31","Domestic Cat","South Hammond",1
+"32","Domestic Dog","Degrasse",1
+"33","Domestic Dog","Donnerville",1
+"34","Domestic Dog","South Hammond",3
+"35","Domestic Dog","Whippoorwill Corners",8
+"36","Domestic Dog","Whiskey Flats",2
+"37","Fisher","Beaver Creek",5
+"38","Fisher","Degrasse",14
+"39","Fisher","Donnerville",4
+"40","Fisher","South Hammond",3
+"41","Fisher","Whippoorwill Corners",10
+"42","Fisher","Whiskey Flats",20
+"43","Flying Squirrel","South Hammond",2
+"44","Flying Squirrel","Whippoorwill Corners",2
+"45","Flying Squirrel","Whiskey Flats",8
+"46","Gray Squirrel","Beaver Creek",121
+"47","Gray Squirrel","Degrasse",3
+"48","Gray Squirrel","Donnerville",4
+"49","Gray Squirrel","South Hammond",224
+"50","Gray Squirrel","Whippoorwill Corners",61
+"51","Gray Squirrel","Whiskey Flats",18
+"52","Human","Beaver Creek",15
+"53","Human","Degrasse",9
+"54","Human","Donnerville",4
+"55","Human","South Hammond",6
+"56","Human","Whippoorwill Corners",20
+"57","Human","Whiskey Flats",15
+"58","Mink","Degrasse",1
+"59","Nothing Here","Beaver Creek",219
+"60","Nothing Here","Degrasse",109
+"61","Nothing Here","Donnerville",420
+"62","Nothing Here","South Hammond",357
+"63","Nothing Here","Whippoorwill Corners",262
+"64","Nothing Here","Whiskey Flats",332
+"65","Opossum","Degrasse",1
+"66","Opossum","South Hammond",3
+"67","Other Bird","Beaver Creek",1
+"68","Other Bird","Degrasse",3
+"69","Other Bird","Donnerville",37
+"70","Other Bird","South Hammond",23
+"71","Other Bird","Whippoorwill Corners",23
+"72","Other Small Mammal","Beaver Creek",3
+"73","Other Small Mammal","Degrasse",9
+"74","Other Small Mammal","Donnerville",18
+"75","Other Small Mammal","South Hammond",5
+"76","Other Small Mammal","Whippoorwill Corners",11
+"77","Other Small Mammal","Whiskey Flats",1
+"78","Owl","Donnerville",1
+"79","Porcupine","Beaver Creek",29
+"80","Porcupine","Degrasse",3
+"81","Porcupine","Donnerville",1
+"82","Porcupine","South Hammond",19
+"83","Porcupine","Whippoorwill Corners",21
+"84","Porcupine","Whiskey Flats",20
+"85","Raccoon","Beaver Creek",11
+"86","Raccoon","Degrasse",6
+"87","Raccoon","Donnerville",8
+"88","Raccoon","South Hammond",4
+"89","Raccoon","Whippoorwill Corners",46
+"90","Raccoon","Whiskey Flats",47
+"91","Red Fox","Degrasse",2
+"92","Red Fox","Donnerville",13
+"93","Red Fox","South Hammond",7
+"94","Red Fox","Whippoorwill Corners",5
+"95","Red Squirrel","Beaver Creek",1
+"96","Red Squirrel","Degrasse",8
+"97","Red Squirrel","Donnerville",1
+"98","Red Squirrel","South Hammond",1
+"99","Red Squirrel","Whippoorwill Corners",2
+"100","Red Squirrel","Whiskey Flats",39
+"101","River Otter","Degrasse",2
+"102","Ruffed Grouse","Beaver Creek",1
+"103","Ruffed Grouse","Degrasse",2
+"104","Ruffed Grouse","Donnerville",3
+"105","Ruffed Grouse","South Hammond",2
+"106","Ruffed Grouse","Whippoorwill Corners",5
+"107","Ruffed Grouse","Whiskey Flats",4
+"108","Snowshoe Hare","Whiskey Flats",2
+"109","Something Here","Beaver Creek",11
+"110","Something Here","Degrasse",21
+"111","Something Here","Donnerville",11
+"112","Something Here","South Hammond",16
+"113","Something Here","Whippoorwill Corners",21
+"114","Something Here","Whiskey Flats",18
+"115","Striped Skunk","South Hammond",1
+"116","Striped Skunk","Whippoorwill Corners",2
+"117","Turkey","Beaver Creek",6
+"118","Turkey","Degrasse",2
+"119","Turkey","Donnerville",7
+"120","Turkey","South Hammond",16
+"121","Turkey","Whippoorwill Corners",2
+"122","Turkey","Whiskey Flats",11
+"123","Weasel","Beaver Creek",1
+"124","Weasel","South Hammond",3
+"125","Weasel","Whippoorwill Corners",2
+"126","Weasel","Whiskey Flats",1
+"127","White-tailed Deer","Beaver Creek",185
+"128","White-tailed Deer","Degrasse",290
+"129","White-tailed Deer","Donnerville",107
+"130","White-tailed Deer","South Hammond",243
+"131","White-tailed Deer","Whippoorwill Corners",253
+"132","White-tailed Deer","Whiskey Flats",389
+"133","Wild Goose","Beaver Creek",1
+"134","Wild Goose","Degrasse",1

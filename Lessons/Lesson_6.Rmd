@@ -1,0 +1,231 @@
+---
+title: "Lesson 6"
+output: html_notebook
+---
+
+```{r}
+rm(list = ls())
+library(shiny)
+```
+
+Use reactive expressions
+
+Shiny apps wow your users by running fast, instantly fast. But what if your app needs to do a lot of slow computation?
+
+This lesson will show you how to streamline your Shiny apps with reactive expressions. Reactive expressions let you control which parts of your app update when, which prevents unnecessary computation that can slow down your app.
+
+To get started:
+
+Create a new folder named stockVis in your working directory.
+Download the following files and place them inside stockVis: app.R and helpers.R.
+Launch the app with runApp("stockVis")
+StockVis use R’s quantmod package, so you’ll need to install quantmod with install.packages("quantmod") if you do not already have it.
+```{r}
+runApp("stockVis")
+```
+
+
+A new app: stockVis
+
+The stockVis app looks up stock prices by ticker symbol and displays the results as a line chart. The app lets you
+
+Select a stock to examine
+Pick a range of dates to review
+Choose whether to plot stock prices or the log of the stock prices on the y axis, and
+Decide whether or not to correct prices for inflation.
+stockVis app
+
+Note that the “Adjust prices for inflation” check box doesn’t work yet. One of our tasks in this lesson is to fix this check box.
+
+By default, stockVis displays the SPY ticker (an index of the entire S&P 500). To look up a different stock, type in a stock symbol that Yahoo finance will recognize. You can look up Yahoo’s stock symbols here. Some common symbols are GOOG (Google), AAPL (Apple), and GS (Goldman Sachs).
+
+stockVis relies heavily on two functions from the quantmod package:
+
+It usesgetSymbols to download financial data straight into R from websites like Yahoo finance and the Federal Reserve Bank of St. Louis.
+It uses chartSeries to display prices in an attractive chart.
+stockVis also relies on an R script named helpers.R, which contains a function that adjusts stock prices for inflation.
+
+Check boxes and date ranges
+The stockVis app uses a few new widgets.
+
+a date range selector, created with dateRangeInput, and
+a couple of check boxes made with checkboxInput. Check box widgets are very simple. They return a TRUE when the check box is checked, and a FALSE when the check box is not checked.
+The check boxes are named log and adjust in the ui object, which means you can look them up as input$log and input$adjust in the server function. If you’d like to review how to use widgets and their values, check out Lesson 3 and Lesson 4.
+
+Streamline computation
+
+The stockVis app has a problem.
+
+Examine what will happen when you click “Plot y axis on the log scale.” The value of input$log will change, which will cause the entire expression in renderPlot to re-run:
+```{r}
+output$plot <- renderPlot({
+  data <- getSymbols(input$symb, src = "yahoo",
+                     from = input$dates[1],
+                     to = input$dates[2],
+                     auto.assign = FALSE)
+
+  chartSeries(data, theme = chartTheme("white"),
+              type = "line", log.scale = input$log, TA = NULL)
+})
+```
+
+
+Each time renderPlot re-runs
+
+it re-fetches the data from Yahoo finance with getSymbols, and
+it re-draws the chart with the correct axis.
+This is not good, because you do not need to re-fetch the data to re-draw the plot. In fact, Yahoo finance will cut you off if you re-fetch your data too often (because you begin to look like a bot). But more importantly, re-running getSymbols is unnecessary work, which can slow down your app and consume server bandwidth.
+
+Reactive expressions
+
+You can limit what gets re-run during a reaction with reactive expressions.
+
+A reactive expression is an R expression that uses widget input and returns a value. The reactive expression will update this value whenever the original widget changes.
+
+To create a reactive expression use the reactive function, which takes an R expression surrounded by braces (just like the render* functions).
+
+For example, here’s a reactive expression that uses the widgets of stockVis to fetch data from Yahoo.
+```{r}
+dataInput <- reactive({
+  getSymbols(input$symb, src = "yahoo",
+    from = input$dates[1],
+    to = input$dates[2],
+    auto.assign = FALSE)
+})
+```
+
+
+When you run the expression, it will run getSymbols and return the results, a data frame of price data. You can use the expression to access price data in renderPlot by calling dataInput().
+```{r}
+output$plot <- renderPlot({    
+  chartSeries(dataInput(), theme = chartTheme("white"),
+    type = "line", log.scale = input$log, TA = NULL)
+})
+```
+
+
+Reactive expressions are a bit smarter than regular R functions. They cache their values and know when their values have become outdated. What does this mean? The first time that you run a reactive expression, the expression will save its result in your computer’s memory. The next time you call the reactive expression, it can return this saved result without doing any computation (which will make your app faster).
+
+The reactive expression will only return the saved result if it knows that the result is up-to-date. If the reactive expression has learned that the result is obsolete (because a widget has changed), the expression will recalculate the result. It then returns the new result and saves a new copy. The reactive expression will use this new copy until it too becomes out of date.
+
+Let’s summarize this behavior:
+
+A reactive expression saves its result the first time you run it.
+
+The next time the reactive expression is called, it checks if the saved value has become out of date (i.e., whether the widgets it depends on have changed).
+
+If the value is out of date, the reactive object will recalculate it (and then save the new result).
+
+If the value is up-to-date, the reactive expression will return the saved value without doing any computation.
+
+You can use this behavior to prevent Shiny from re-running code unnecessarily. Consider how a reactive expression will work in the new stockVis app below.
+```{r}
+server <- function(input, output) {
+
+  dataInput <- reactive({
+    getSymbols(input$symb, src = "yahoo",
+               from = input$dates[1],
+               to = input$dates[2],
+               auto.assign = FALSE)
+  })
+
+  output$plot <- renderPlot({
+
+    chartSeries(dataInput(), theme = chartTheme("white"),
+                type = "line", log.scale = input$log, TA = NULL)
+  })
+
+}
+```
+
+
+When you click “Plot y axis on the log scale”, input$log will change and renderPlot will re-execute. Now
+
+renderPlot will call dataInput()
+dataInput will check that the dates and symb widgets have not changed
+dataInput will return its saved data set of stock prices without re-fetching data from Yahoo
+renderPlot will re-draw the chart with the correct axis.
+Dependencies
+
+What if your user changes the stock symbol in the symb widget?
+
+This will make the plot drawn by renderPlot out of date, but renderPlot no longer calls input$symb. Will Shiny know that input$symb has made plot out of date?
+
+Yes, Shiny will know and will redraw the plot. Shiny keeps track of which reactive expressions an output object depends on, as well as which widget inputs. Shiny will automatically re-build an object if
+
+an input value in the objects’s render* function changes, or
+a reactive expression in the objects’s render* function becomes obsolete
+Think of reactive expressions as links in a chain that connect input values to output objects. The objects in output will respond to changes made anywhere downstream in the chain. (You can fashion a long chain because reactive expressions can call other reactive expressions.)
+
+Only call a reactive expression from within a reactive or a render*function. Why? Only these R functions are equipped to deal with reactive output, which can change without warning. In fact, Shiny will prevent you from calling reactive expressions outside of these functions.
+
+Warm up
+
+Time to fix the broken check box for “Adjust prices for inflation.” Your user should be able to toggle between prices adjusted for inflation and prices that have not been adjusted.
+
+The adjust function in helpers.R uses the Consumer Price Index data provided by the Federal Reserve Bank of St. Louis to transform historical prices into present day values. But how can you implement this in the app?
+
+Here’s one solution below, but it is not ideal. Can you spot why? Once again it has to do with input$log.
+```{r}
+server <- function(input, output) {
+
+  dataInput <- reactive({
+    getSymbols(input$symb, src = "yahoo",
+        from = input$dates[1],
+        to = input$dates[2],
+        auto.assign = FALSE)
+  })
+
+  output$plot <- renderPlot({   
+    data <- dataInput()
+    if (input$adjust) data <- adjust(dataInput())
+
+    chartSeries(data, theme = chartTheme("white"),
+        type = "line", log.scale = input$log, TA = NULL)
+  })
+}
+```
+
+
+adjust is called inside renderPlot. If the adjust box is checked, the app will readjust all of the prices each time you switch from a normal y scale to a logged y scale. This readjustment is unnecessary work.
+
+Your Turn
+
+Fix this problem by adding a new reactive expression to the app. The reactive expression should take the value of dataInput and return an adjusted (or not adjusted) copy of the data.
+
+When you think you have it, compare your solution to the model answer below. Make sure you understand what calculations will happen and what calculations will not happen in your app when your user clicks “Plot y axis on the log scale”.
+
+
+```{r}
+server <- function(input, output) {
+
+  dataInput <- reactive({  
+      getSymbols(input$symb, src = "yahoo",
+          from = input$dates[1],
+          to = input$dates[2],
+          auto.assign = FALSE)
+  })
+
+  finalInput <- reactive({
+    if (!input$adjust) return(dataInput())
+    adjust(dataInput())
+  })
+
+  output$plot <- renderPlot({
+    chartSeries(finalInput(), theme = chartTheme("white"),
+        type = "line", log.scale = input$log, TA = NULL)
+  })
+}
+```
+
+You can make your apps faster by modularizing your code with reactive expressions.
+
+A reactive expression takes input values, or values from other reactive expressions, and returns a new value
+Reactive expressions save their results, and will only re-calculate if their input has changed
+Create reactive expressions with reactive({ })
+Call reactive expressions with the name of the expression followed by parentheses ()
+Only call reactive expressions from within other reactive expressions or render* functions
+You can now create sophisticated, streamlined Shiny apps. The final lesson in this tutorial will show you how to share your apps with others.
+
+Continue to lesson 7
+

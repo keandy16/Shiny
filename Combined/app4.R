@@ -86,14 +86,67 @@ ui <- fluidPage(
 
 
 server <- function(input, output){
+  #Species Activity Patterns
+  output$activity<-renderPlot({
+    
+    title<- sprintf( "%s Activity Patterns", input$mammals) %>% lapply(htmltools::HTML)
+    
+    
+    data<-switch(input$mammals, 
+                 "White-tailed Deer" = Activity %>% filter(bin == "DEERWHITETAILED"),
+                 "Chipmunk" = Activity %>% filter(bin == "CHIPMUNK"),
+                 "Coyote" = Activity %>% filter(bin == "COYOTE"),
+                 "Fisher" = Activity %>% filter(bin=="FISHER"),
+                 "Raccoon" = Activity %>% filter(bin =="RACCOON"),
+                 "Red Squirrel" = Activity %>% filter(bin == "SQUIRRELRED"),
+                 "Gray Squirrel" = Activity %>% filter(bin =="SQUIRRELGRAY"),
+                 "Black Bear" = Activity %>% filter(bin == "BLACKBEAR"),
+                 "Red Fox" = Activity %>% filter(bin == "FOXRED"),
+                 "Porcupine" = Activity %>% filter(bin == "PORCUPINE"),
+                 "Bobcat" = Activity %>% filter( bin == "BOBCAT"),
+                 "Weasel" = Activity %>% filter(bin == "WEASEL"),
+                 "Striped Skunk" = Activity %>% filter(bin == "SKUNKSTRIPED"),
+                 "Flying Squirrel" = Activity %>% filter(bin== "SQUIRRELFLYING"),
+                 "Snowshoe Hare" = Activity %>% filter(bin == "SNOWSHOEHARE"),
+                 "River Otter" = Activity %>% filter(bin == "RIVEROTTER"),
+                 "Mink" = Activity %>% filter(bin == "MINK"),
+                 "Other Small Mammal" = Activity %>% filter(bin == "OTHERSMALLMAMMAL"),
+                 "Opossum" = Activity %>% filter(bin == "OPOSSUM"))
+    
+    clock<-c(0:23)
+    clock24.plot(data$NumObs, clock, show.grid = T, lwd = 2, line.col = "#165970", cex.lab = 0.5, main = title)
+    
+  })
 
   output$image <- renderImage({
-    list(src = "Deer.jpg", height = 240, width = 300, align = "left")
+    
+    # pic<- switch(input$mammals,
+    #              "White-tailed Deer" = tempfile(fileext = 'Deer.png'),
+    #              "Chipmunk" = tempfile(fileext = 'Chipmunk.png'),
+    #              "Coyote" = tempfile(fileext = 'Coyote.png'),
+    #              "Fisher" = tempfile(fileext = 'Fisher.png'),
+    #              "Raccoon" = tempfile(fileext = 'Raccoon.png'),
+    #              "Red Squirrel" = tempfile(fileext = 'RedSquirrel.png'),
+    #              "Gray Squirrel" = tempfile(fileext = 'GraySquirrel.png'),
+    #              "Black Bear" = tempfile(fileext = 'blackbear.png'),
+    #              "Red Fox" = tempfile(fileext = 'RedFox.png'),
+    #              "Porcupine" = tempfile(fileext = 'Porcupine.png'),
+    #              "Bobcat" = tempfile(fileext = 'Bobcat.png'),
+    #              "Weasel" = tempfile(fileext = 'Weasel.png'),
+    #              "Striped Skunk" = tempfile(fileext = 'StripedSkunk.png'),
+    #              "Flying Squirrel" = tempfile(fileext = 'FlyingSquirrel.png'),
+    #              "Snowshoe Hare" = tempfile(fileext = 'SnowshoeHare.png'),
+    #              "River Otter" = tempfile(fileext = 'RiverOtter.png'),
+    #              "Mink" = tempfile(fileext = 'Mink.png'),
+    #              "Other Small Mammal" = tempfile(fileext = 'Mole.png'),
+    #              "Opossum" = tempfile(fileext = 'Opossum.png'),)
+    # png(pic, width = 400, height = 300)
+    
   if(input$mammals == "White-tailed Deer"){
-    list(src = "Deer.jpg", height = 240, width = 300, align = "left")
+   list(src = "Deer.jpg", height = 240, width = 300, align = "left")
   }
   else if(input$mammals == "Chipmunk"){
-    list(src = "Chipmunk.jpg", height = 240, width = 300, align = "left")
+   list(src = "Chipmunk.jpg", height = 240, width = 300, align = "left")
   }
   else if(input$mammals == "Coyote"){
     list(src = "Coyote.jpg", height = 240, width = 300, align = "left")
